@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:inbank_frontend/fonts.dart';
 import 'package:inbank_frontend/widgets/national_id_field.dart';
+import 'package:inbank_frontend/widgets/countrycode_field.dart';
 
 import '../api_service.dart';
 import '../colors.dart';
@@ -27,13 +28,14 @@ class _LoanFormState extends State<LoanForm> {
   int _loanAmountResult = 0;
   int _loanPeriodResult = 0;
   String _errorMessage = '';
+  String _country = 'EE';
 
   // Submit the form and update the state with the loan decision results.
   // Only submits if the form inputs are validated.
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final result = await _apiService.requestLoanDecision(
-          _nationalId, _loanAmount, _loanPeriod);
+          _nationalId, _loanAmount, _loanPeriod, _country);
       setState(() {
         int tempAmount = int.parse(result['loanAmount'].toString());
         int tempPeriod = int.parse(result['loanPeriod'].toString());
@@ -45,6 +47,7 @@ class _LoanFormState extends State<LoanForm> {
           _loanAmountResult = _loanAmount;
           _loanPeriodResult = _loanPeriod;
         }
+        
         _errorMessage = result['errorMessage'].toString();
       });
     } else {
@@ -76,6 +79,16 @@ class _LoanFormState extends State<LoanForm> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          CountryDropdown(
+                            onChanged: (value) {
+                              setState(() {
+                                _country = value;
+                                if (_nationalId.isNotEmpty) {
+                                  _submitForm();
+                                }
+                              });
+                            },
+                          ),
                           NationalIdTextFormField(
                             onChanged: (value) {
                               setState(() {
@@ -152,7 +165,7 @@ class _LoanFormState extends State<LoanForm> {
                           padding: EdgeInsets.only(left: 12),
                           child: Align(
                               alignment: Alignment.centerLeft,
-                              child: Text('6 months')),
+                              child: Text('12 months')),
                         ),
                       ),
                       Expanded(

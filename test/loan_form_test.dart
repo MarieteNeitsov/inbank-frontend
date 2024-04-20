@@ -60,4 +60,28 @@ void main() {
     // Verify slider value changed
     expect(slider.value, newValue);
   });
+
+testWidgets('CountryDropdown changes the selected country', (WidgetTester tester) async {
+  await tester.pumpWidget(MaterialApp(
+    home: Scaffold(
+      body: Column(
+        children: const [LoanForm()],
+      ),
+    ),
+  ));
+
+  expect(find.byType(DropdownButtonFormField), findsOneWidget);
+
+  // Verify the initial selected country
+  expect(find.text('EE'), findsOneWidget);
+
+  await tester.tap(find.byType(DropdownButtonFormField));
+  await tester.pumpAndSettle(); 
+
+  await tester.tap(find.text('LV').last);
+  await tester.pumpAndSettle();
+
+  // Verify 'LV' is now the selected country
+  expect(find.text('LV'), findsOneWidget);
+});
 }
